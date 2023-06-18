@@ -1,7 +1,9 @@
 # Change the path to your PEM file
-USER_PEM="../../../walletKey.pem"
+USER_PEM="/home/dan/Documents/dev-wallet.pem"
 PROXY="https://devnet-gateway.multiversx.com"
 CHAIN_ID="D"
+
+Smart_Contract_Address = "erd1qqqqqqqqqqqqqpgquqncn2vcwy7udpaaxp0t9l9mjpka97nd9njqtuj2cu"
 
 ASSETS_URIS_CONCAT=""
 SC_ADDRESS=$(mxpy data load --key=address-devnet)
@@ -11,7 +13,7 @@ ISSUE_COLLECTION_TOKEN_COST=50000000000000000
 
 # Deploy SFT Minter Smart Contract
 deploy() {
-  mxpy --verbose contract deploy --chain=${CHAIN_ID} --project=${PROJECT} --pem=${USER_PEM} --gas-limit=20000000 --proxy=${PROXY} --recall-nonce --outfile="deploy-devnet.interaction.json" --send
+  mxpy --verbose contract deploy --chain=${CHAIN_ID} --project=${PROJECT} --pem=${USER_PEM} --gas-limit=100000000 --proxy=${PROXY} --recall-nonce --outfile="deploy-devnet.interaction.json" --send
 
   SC_ADDRESS=$(mxpy data parse --file="deploy-devnet.interaction.json" --expression="data['contractAddress']")
   mxpy data store --key=address-devnet --value=${SC_ADDRESS}
@@ -39,7 +41,7 @@ createToken() {
   read -p "METADATA_IPFS_CID: Enter the the metadata file CID from IPFS: " METADATA_IPFS_CID
   read -p "METADATA_IPFS_FILE_NAME: Enter the the metadata file name uploaded using IPFS (ex: metadata.json): " METADATA_IPFS_FILE_NAME
   read -p "INITIAL_AMOUNT_OF_TOKENS: Enter the initial amount of tokens: " INITIAL_AMOUNT_OF_TOKENS
-  read -p "MAX_PER_ADDRESS: Enter the maximum of tokens per address: " MAX_PER_ADDRESS
+  read -p "MAX_PER_TRANSACTION: Enter the maximum of tokens per transaction: " MAX_PER_TRANSACTION
   read -p "ROYALTIES: Enter royalties percent (55,66% = 5566): " ROYALTIES
   read -p "TAGS: Enter descriptive tags (ex: tag1,tag2,tag3,tag4): " TAGS
 
@@ -53,15 +55,26 @@ createToken() {
 
   mxpy data store --key=token-selling-price --value=${TOKEN_SELLING_PRICE}
 
-  mxpy --verbose contract call ${SC_ADDRESS} --function="createToken" --chain=${CHAIN_ID} --pem=${USER_PEM} --gas-limit=20000000 --proxy=${PROXY} --recall-nonce --arguments str:"${TOKEN_DISPLAY_NAME}" ${TOKEN_SELLING_PRICE} str:${METADATA_IPFS_CID} str:${METADATA_IPFS_FILE_NAME} ${INITIAL_AMOUNT_OF_TOKENS} ${MAX_PER_ADDRESS} ${ROYALTIES} str:"${TAGS}" ${ASSETS_URIS_CONCAT} --send
+  mxpy --verbose contract call ${SC_ADDRESS} --function="createToken" --chain=${CHAIN_ID} --pem=${USER_PEM} --gas-limit=20000000 --proxy=${PROXY} --recall-nonce --arguments str:"${TOKEN_DISPLAY_NAME}" ${TOKEN_SELLING_PRICE} str:${METADATA_IPFS_CID} str:${METADATA_IPFS_FILE_NAME} ${INITIAL_AMOUNT_OF_TOKENS} ${MAX_PER_TRANSACTION} ${ROYALTIES} str:"${TAGS}" ${ASSETS_URIS_CONCAT} --send
 }
 
 # Buy SFT tokens
 buy() {
   read -p "AMOUNT_OF_TOKENS: Enter the amount of tokens to buy: " AMOUNT_OF_TOKENS
-  read -p "SFT_TOKEN_NONCE: Enter the SFT token to buy nonce: " SFT_TOKEN_NONCE
+  read -p "SFT_TOKEN_ID: Enter the SFT token to buy ID: " SFT_TOKEN_ID
 
   VALUE_TO_SEND=$((TOKEN_SAVED_SELLING_PRICE * AMOUNT_OF_TOKENS))
 
-  mxpy --verbose contract call ${SC_ADDRESS} --function="buy" --chain=${CHAIN_ID} --pem=${USER_PEM} --gas-limit=20000000 --proxy=${PROXY} --value=${VALUE_TO_SEND} --recall-nonce --arguments ${AMOUNT_OF_TOKENS} ${SFT_TOKEN_NONCE} --send
+  mxpy --verbose contract call ${SC_ADDRESS} --function="buy" --chain=${CHAIN_ID} --pem=${USER_PEM} --gas-limit=20000000 --proxy=${PROXY} --value=${VALUE_TO_SEND} --recall-nonce --arguments ${AMOUNT_OF_TOKENS} ${SFT_TOKEN_ID} --send
+}
+
+# Mint Community
+buyCommunity() {
+  read -p "SFT_TOKEN_ID: Enter the SFT token to buy ID: " SFT_TOKEN_ID
+
+  mxpy --verbose contract call ${SC_ADDRESS} --function="buyCommunity" --chain=${CHAIN_ID} --pem=${USER_PEM} --gas-limit=20000000 --proxy=${PROXY} --recall-nonce --arguments ${SFT_TOKEN_ID} --send
+}
+
+scClaimFunds() {
+  mxpy --verbose contract call ${SC_ADDRESS} --function="claimScFunds" --chain=${CHAIN_ID} --pem=${USER_PEM} --gas-limit=60000000 --proxy=${PROXY} --recall-nonce --send
 }

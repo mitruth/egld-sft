@@ -5,9 +5,9 @@
 ////////////////////////////////////////////////////
 
 // Init:                                 1
-// Endpoints:                           10
+// Endpoints:                           11
 // Async Callback:                       1
-// Total number of exported functions:  12
+// Total number of exported functions:  13
 
 #![no_std]
 #![feature(alloc_error_handler, lang_items)]
@@ -24,6 +24,7 @@ multiversx_sc_wasm_adapter::endpoints! {
         setLocalRoles
         createToken
         buy
+        buyCommunity
         claimScFunds
         getPrice
         getTokenDisplayName

@@ -2,10 +2,10 @@
     "buildInfo": {
         "rustc": {
             "version": "1.70.0-nightly",
-            "commitHash": "8be3c2bda6b683f87b24714ba595e8b04faef54c",
-            "commitDate": "2023-03-24",
+            "commitHash": "44f5180584404d18058cbbf224c55255db4fdcbb",
+            "commitDate": "2023-03-20",
             "channel": "Nightly",
-            "short": "rustc 1.70.0-nightly (8be3c2bda 2023-03-24)"
+            "short": "rustc 1.70.0-nightly (44f518058 2023-03-20)"
         },
         "contractCrate": {
             "name": "elven-tools-sft-minter",
@@ -125,7 +125,19 @@
                     "type": "u32"
                 },
                 {
-                    "name": "nonce",
+                    "name": "token_id",
+                    "type": "u64"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "buyCommunity",
+            "onlyOwner": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "token_id",
                     "type": "u64"
                 }
             ],
@@ -143,7 +155,7 @@
             "mutability": "readonly",
             "inputs": [
                 {
-                    "name": "token_nonce",
+                    "name": "token_id",
                     "type": "u64"
                 }
             ],
@@ -158,7 +170,7 @@
             "mutability": "readonly",
             "inputs": [
                 {
-                    "name": "token_nonce",
+                    "name": "token_id",
                     "type": "u64"
                 }
             ],
@@ -173,7 +185,7 @@
             "mutability": "readonly",
             "inputs": [
                 {
-                    "name": "token_nonce",
+                    "name": "token_id",
                     "type": "u64"
                 }
             ],
